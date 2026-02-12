@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Recipe Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{background:#f4f6f9;}
+.sidebar{height:100vh;background:#1e3c72;color:white;padding:20px;}
+.recipe-card{border-radius:12px;box-shadow:0 0 8px rgba(0,0,0,0.08);}
+</style>
+</head>
+
+<body>
+<div class="container-fluid">
+<div class="row">
+
+<div class="col-md-2 sidebar">
+<h4>Smart Recipe</h4>
+<button class="btn btn-outline-light w-100 mb-2" onclick="showSection('dashboard')">Dashboard</button>
+<button class="btn btn-outline-light w-100 mb-2" onclick="showSection('recommendations')">Recommendations</button>
+<button class="btn btn-outline-light w-100 mb-2" onclick="showSection('profile')">Profile</button>
+<hr>
+<button class="btn btn-light w-100" onclick="logout()">Logout</button>
+</div>
+
+<div class="col-md-10 p-4">
+
+<h4 id="welcomeText"></h4>
+
+<div id="dashboardSection">
+<input id="ingredients" class="form-control mb-2" placeholder="rice,onion,tomato">
+<input id="time" class="form-control mb-2" placeholder="time">
+<button class="btn btn-primary" onclick="getRecipes()">Get Recipes</button>
+</div>
+
+<div id="recommendationsSection" style="display:none">
+<h5 class="mt-3">Recommended Recipes</h5>
+<div class="row" id="output"></div>
+</div>
+
+<div id="profileSection" style="display:none">
+<input id="p_bp" class="form-control mb-2" placeholder="BP">
+<input id="p_sugar" class="form-control mb-2" placeholder="Sugar">
+<input id="p_cholesterol" class="form-control mb-2" placeholder="Cholesterol">
+<input id="p_allergies" class="form-control mb-2" placeholder="Allergies">
+<button class="btn btn-success" onclick="saveProfile()">Save</button>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+window.onload=function(){
+document.getElementById("welcomeText").innerText="Welcome "+localStorage.getItem("user");
+loadProfile();
+}
+
+function showSection(sec){
+dashboardSection.style.display="none";
+recommendationsSection.style.display="none";
+profileSection.style.display="none";
+document.getElementById(sec+"Section").style.display="block";
+}
+
+function loadProfile(){
+let h=JSON.parse(localStorage.getItem("health"));
+if(!h)return;
+p_bp.value=h.bp;
+p_sugar.value=h.sugar;
+p_cholesterol.value=h.cholesterol;
+p_allergies.value=h.allergies;
+}
+
+function saveProfile(){
+let h=JSON.parse(localStorage.getItem("health"));
+h.bp=p_bp.value;
+h.sugar=p_sugar.value;
+h.cholesterol=p_cholesterol.value;
+h.allergies=p_allergies.value;
+localStorage.setItem("health",JSON.stringify(h));
+alert("Updated");
+}
+
+async function getRecipes(){
+
+showSection("recommendations");
+
+let h=JSON.parse(localStorage.getItem("health"));
+
+let res=await fetch("http://127.0.0.1:8000/recommend",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+ingredients:ingredients.value.split(","),
+goal:h.goal,
+bp:h.bp,
+sugar:h.sugar,
+cholesterol:h.cholesterol,
+allergies:h.allergies,
+max_time:time.value,
+top_k:5
+})
+});
+
+let data=await res.json();
+
+let out="";
+data.recommendations.forEach(r=>{
+out+=`
+<div class="col-md-4">
+<div class="card recipe-card p-3 mb-3">
+<b>${r.dish}</b>
+<span class="badge bg-success float-end">${r.match_percent}%</span><br>
+Calories:${r.calories}<br>
+Fat:${r.fat}<br>
+<b>Why:</b>${r.why_recommended}<br>
+<button class="btn btn-info btn-sm mt-2" onclick="alert(\`${r.procedure}\`)">Procedure</button>
+<div class="mt-2">
+<button class="btn btn-success btn-sm" onclick="feedback('Like')">👍</button>
+<button class="btn btn-danger btn-sm" onclick="dislike()">👎</button>
+</div>
+</div>
+</div>`;
+});
+output.innerHTML=out;
+}
+
+function feedback(t){alert("Feedback:"+t);}
+
+async function dislike(){
+let ing=prompt("Which ingredient caused dislike?");
+if(!ing)return;
+let reason=prompt("Why did you dislike it?");
+if(!reason) reason="Not specified";
+
+await fetch("http://127.0.0.1:8000/feedback",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({ingredient:ing,reason:reason})
+});
+
+alert("Future recipes will avoid "+ing);
+}
+
+function logout(){
+localStorage.clear();
+window.location.href="login.html";
+}
+
+</script>
+</body>
+</html>

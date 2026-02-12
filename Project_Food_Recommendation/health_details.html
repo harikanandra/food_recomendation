@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Health Details | Smart Recipe System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .health-card {
+            margin-top: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card p-4 health-card">
+                <h4 class="text-center text-primary mb-3">
+                    Enter Your Health Details
+                </h4>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-2">
+                        <label>Age</label>
+                        <input type="number" id="age" class="form-control" placeholder="Eg: 22">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weight" class="form-control" placeholder="Eg: 65">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Height (cm)</label>
+                        <input type="number" id="height" class="form-control" placeholder="Eg: 170">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Gender</label>
+                        <select id="gender" class="form-control">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Blood Pressure</label>
+                        <input type="text" id="bp" class="form-control" placeholder="120/80">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Blood Sugar</label>
+                        <input type="text" id="sugar" class="form-control" placeholder="Normal / High">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Cholesterol</label>
+                        <input type="text" id="cholesterol" class="form-control" placeholder="Normal / High">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Allergies (if any)</label>
+                        <input type="text" id="allergies" class="form-control" placeholder="peanuts, milk">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Health Goal</label>
+                        <select id="goal" class="form-control">
+                            <option value="weight_loss">Weight Loss</option>
+                            <option value="muscle_gain">Muscle Gain</option>
+                            <option value="diabetic_friendly">Diabetic Friendly</option>
+                            <option value="normal">Normal Health</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="saveHealthDetails()">
+                    Save & Continue
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveHealthDetails(){
+
+    let details = {
+        age: document.getElementById("age").value,
+        weight: document.getElementById("weight").value,
+        height: document.getElementById("height").value,
+        gender: document.getElementById("gender").value,
+        bp: document.getElementById("bp").value,
+        sugar: document.getElementById("sugar").value,
+        cholesterol: document.getElementById("cholesterol").value,
+        allergies: document.getElementById("allergies").value,
+        goal: document.getElementById("goal").value
+    };
+
+    localStorage.setItem("health", JSON.stringify(details));
+
+    alert("Health details saved successfully!");
+
+    window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
